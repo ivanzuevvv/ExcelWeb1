@@ -1,0 +1,131 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+
+ <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+ <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+ <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<head>
+    <title>Upload Files</title>
+    <style>
+
+        .container {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+
+        .column {
+        float: left;
+        width: 40%; /* Установите ширину столбцов на 50% для равного разделения */
+        padding: 10px; /* Добавьте отступ вокруг содержимого столбцов */
+        box-sizing: border-box; /* Учитывайте отступы внутри ширины столбца */
+    }
+
+    .container::after {
+        content: "";
+        clear: both;
+        display: table;
+    }
+
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        .run-button {
+            margin-top: 20px;
+            order: -1; /* Перемещает элемент в начало контейнера */
+        }
+    </style>
+
+    <a class="navbar-brand mr-auto d-flex align-items-center bg-primary text-white navbar-brand" href="{% url 'home' %}" style="pointer-events: none;">
+  <img src="{% static 'back/images/logo.jpg' %}" height="50" width="80" alt="Логотип" class="mr-3 ml-3">
+  <div class="d-flex flex-column align-items-start">
+    <span class="text-white"></span>
+    <small class="text-white"></small>
+  </div>
+</a>
+
+
+
+
+</head>
+<body>
+    <div class="run-button">
+        <form method="post" action="{% url 'run_task' %}">
+            {% csrf_token %}
+
+<input type="submit" value="Запустить скрипт" onclick="runPythonScript()" style="background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin-top: 0.50cm; margin-left: 0.09cm;">
+
+        </form>
+    </div>
+
+<div class="container">
+        <div class="column">
+            <h2>Загрузите python файл</h2>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="python_script" multiple accept=".py" style="background-color: white; color: #007bff; border: 2px solid #007bff; padding: 10px 20px; border-radius: 5px; margin-bottom: 5mm;">
+                <input type="submit" value="Загрузите файл" style="background-color: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 1px;">
+            </form>
+            <h3>Загруженные Python файлы:</h3>
+            <ul>
+                {% for python_script in python_scripts %}
+                    <li>
+                        <input type="checkbox" name="selected_python_scripts" value="{{ python_script.id }}">
+                        {{ python_script }}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+
+        <div class="column">
+            <h2>Загрузите Excel файл</h2>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="excel_file" multiple accept=".xlsx, .xls" style="background-color: white; color: #007bff; border: 2px solid #007bff; padding: 10px 20px; border-radius: 5px; margin-bottom: 5mm;">
+                <input type="submit" value="Загрузите файл" style="background-color: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 1px;">
+            </form>
+            <h3>Загруженные Excel файлы:</h3>
+            <ul>
+                {% for excel_file in excel_files %}
+                    <li>
+                        <input type="checkbox" name="selected_excel_files" value="{{ excel_file.id }}">
+                        {{ excel_file }}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+<nav class="navbar navbar-dark bg-primary fixed-top">
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse ml-auto" id="navbarNav">
+    <ul class="navbar-nav nav-fill">
+      <li class="nav-item dropdown">
+        <ul class="navbar-nav nav-fill">
+
+      <li class="nav-item {% if current_page == 'index' %}active{% endif %}">
+        <a class="nav-link" href="{% url 'home' %}">Главная</a>
+
+
+      </li>
+        </div>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+
+
+</script>
+
+</body>
+</html>

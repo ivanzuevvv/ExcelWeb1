@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload File</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <style>
+        .column {
+            float: left;
+            width: 50%;
+        }
+        .sidenav {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            background-color: #f5f5f5;
+            overflow-x: hidden;
+            padding-top: 20px;
+        }
+        .sidenav a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 16px;
+            color: #000;
+            display: block;
+        }
+        .sidenav a:hover {
+            background-color: #ddd;
+        }
+        .active {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+<body class="container">
+    <div class="sidenav">
+        <a href="{% url 'upload_file' %}" class="{% if request.path == '/upload/' %}active{% endif %}"></a>
+    </div>
+
+    <div style="margin-left: 10px;">
+        <h2>Загрузка файлов</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="file-field input-field">
+                <div class="btn">
+                    <span>Выбрать файл</span>
+                    <input type="file" name="file" multiple>
+                </div>
+                <div class="file-path-wrapper">
+                    <input class="file-path validate" type="text">
+                </div>
+            </div>
+            <button class="btn waves-effect waves-light" type="submit" name="action" value="upload_file">Загрузить Python файл</button>
+            <button class="btn waves-effect waves-light green" type="submit" name="action" value="upload_file2">Загрузить Excel файл</button>
+        </form>
+
+<div class="row">
+    <div class="column">
+        <h3>Python</h3>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <ul class="collection">
+                {% for file in files_list_python %}
+                    <li class="collection-item">
+                        <label>
+                            <input type="checkbox" name="python_files" value="{{ file }}" class="filled-in" />
+                            <span>{{ file }}</span>
+                        </label>
+                    </li>
+                {% endfor %}
+            </ul>
+            <button class="btn waves-effect waves-light" type="submit" name="action" value="run_python_script">Выполнить скрипт Python</button>
+        </form>
+    </div>
+
+    <div class="column">
+        <h3>Excel</h3>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <ul class="collection">
+                {% for file in files_list_excel %}
+                    <li class="collection-item">
+                        <label>
+                            <input type="checkbox" name="excel_files" value="{{ file }}" class="filled-in" />
+                            <span>{{ file }}</span>
+                        </label>
+                    </li>
+                {% endfor %}
+            </ul>
+
+        </form>
+    </div>
+</div>
+
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+</html>
+
