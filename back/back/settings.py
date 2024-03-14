@@ -16,6 +16,7 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -130,3 +131,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 MEDIA_URL2 = '/media2/'
 MEDIA_ROOT2 = os.path.join(BASE_DIR, 'media2')
+
+
+MEDIA_URL3 = '/media3/'
+MEDIA_ROOT3 = os.path.join(BASE_DIR, 'media3')
+
+

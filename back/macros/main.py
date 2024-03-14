@@ -11,21 +11,24 @@ parser.add_argument('-o', '--output', dest='pluginOutput', help="Папка дл
 
 args = parser.parse_args()
 
-plugin_dir = "back/macros/plugins"
+plugin_dir = "macros/plugins"
 
 # Сюда добавляем имена загруженных модулей
 modules = []
 
 # Перебирем файлы в папке plugins
+print("11")
 for fname in os.listdir(plugin_dir):
+    print("12")
     # Нас интересуют только файлы с расширением .py
     if fname.endswith(".py"):
         # Обрежем расширение .py у имени файла
         module_name = fname[: -3]
+        print(module_name)
         # Пропустим файлы base.py и __init__.py
         if module_name != "base" and module_name != "__init__":
             # Загружаем модуль и добавляем его имя в список загруженных модулей
-            package_obj = __import__(plugin_dir + "." + module_name)
+            package_obj = __import__("plugins." + module_name)
             modules.append(module_name)
 
 # Перебираем загруженные модули

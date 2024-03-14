@@ -11,7 +11,7 @@ parser.add_argument('-o', '--output', dest='pluginOutput', help="Папка дл
 
 args = parser.parse_args()
 
-plugin_dir = "back/macros/plugins"
+plugin_dir = "plugins"
 
 # Сюда добавляем имена загруженных модулей
 modules = []

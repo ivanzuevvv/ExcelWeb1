@@ -1,11 +1,17 @@
 from django.urls import path
 from . import views
+from .views import *
 
 
 urlpatterns = [
-    path('', views.home, name='home'),
-    path('run_task/', views.run_task, name='run_task'),
-    path('upload/', views.upload_file, name='upload_file'),
+
+    path('k/', views.index, name='index'),
+    path('', login_user, name='login'),
+    path('register/', register_user, name='register'),
+
+
+
+
 
     # Добавьте дополнительные маршруты здесь, если необходимо
 ]

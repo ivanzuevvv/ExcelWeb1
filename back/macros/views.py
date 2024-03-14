@@ -1,61 +1,62 @@
-from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render
-from .models import PythonScript, ExcelFile, Result
-import subprocess
-import json
-from django.http import FileResponse
+from django.http import HttpResponseRedirect, HttpResponse, FileResponse
 import os
 import subprocess
-from django.shortcuts import render
 from django.conf import settings
-import os
-import subprocess
-from django.http import FileResponse
+from django.contrib.auth import authenticate, login
+from django.contrib.auth import logout, login
+from django.http import HttpResponse, HttpResponseNotFound, Http404
+from django.shortcuts import render, redirect, get_object_or_404
+from .forms import *
+from django.contrib.auth.decorators import login_required
 
 
-
-def display_python_files(request):
-    python_scripts = []
-    folder_path = 'back/macros/plugin_dir'
-
-    for file_name in os.listdir(folder_path):
-        if file_name.endswith('.py'):
-            python_scripts.append(file_name)
-
-    return render(request, 'home.html', {'python_scripts': python_scripts})
-
-
-def home(request):
+def register_user(request):
     if request.method == 'POST':
-        if 'python_script' in request.FILES:
-            python_script = request.FILES['python_script']
-            PythonScript.objects.create(file=python_script)
-        if 'excel_file' in request.FILES:
-            excel_file = request.FILES['excel_file']
-            ExcelFile.objects.create(file=excel_file)
+        form = RegisterUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)
+            return redirect('login')
+    else:
+        form = RegisterUserForm()
+    return render(request, 'register.html', {'form': form})
 
-    python_scripts = PythonScript.objects.all()
-    excel_files = ExcelFile.objects.all()
-    return render(request, 'home.html', {'plugin_dir': python_scripts, 'excel_files': excel_files})
 
-
-def run_task(request):
-    return HttpResponseRedirect('/')
+def login_user(request):
+    if request.method == 'POST':
+        print("9320")
+        form = LoginUserForm(data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('index')
+    else:
+        form = LoginUserForm()
+    return render(request, 'login.html', {'form': form})
 
 
 
 def upload_file(request):
-    files_list_python = []
-    files_list_excel = []
-
-    if request.method == 'POST' and request.FILES['file']:
+    if request.method == 'POST' and request.FILES.get('file'):
         uploaded_file = request.FILES['file']
         action = request.POST.get('action')
-
         if action == 'upload_file':
             upload_folder = os.path.join(settings.MEDIA_ROOT, 'uploaded_files')
+            result_folder = os.path.join(settings.MEDIA_ROOT, 'back', 'macros', 'result')
         elif action == 'upload_file2':
             upload_folder = os.path.join(settings.MEDIA_ROOT2, 'uploaded_files2')
+            result_folder = os.path.join(settings.MEDIA_ROOT2, 'back', 'macros', 'result')
+        elif action == 'upload_file3':
+            upload_folder = os.path.join(settings.MEDIA_ROOT3, 'uploaded_files3')
+            result_folder = os.path.join(settings.MEDIA_ROOT3, 'back', 'macros', 'result')
+            if not os.path.exists(upload_folder):
+                os.makedirs(upload_folder)  # Создание папки, если она не существует
         else:
             return render(request, 'upload_file.html', {'error': 'Invalid action'})
 
@@ -68,14 +69,10 @@ def upload_file(request):
             for chunk in uploaded_file.chunks():
                 destination.write(chunk)
 
-        # Проверяем, является ли загруженный файл Excel
         if uploaded_file.name.endswith('.xlsx'):
-            # Выполняем скрипт Python через subprocess
-            subprocess.run(['python', 'script.py', file_path])
+            subprocess.run(['python', 'sc.py', file_path])
+            result_file_path = os.path.join(result_folder, 'result.txt')
 
-            result_file_path = os.path.join(os.getcwd(), 'result.txt')
-
-            # Проверяем, существует ли файл 'result.txt'
             if os.path.exists(result_file_path):
                 with open(result_file_path, 'rb') as result_file:
                     response = FileResponse(result_file)
@@ -84,20 +81,39 @@ def upload_file(request):
             else:
                 return render(request, 'upload_file.html', {'error': 'Result file not found'})
 
-    files_list_python.clear()
-    files_list_python.extend(os.listdir(os.path.join(settings.MEDIA_ROOT, 'uploaded_files')))
-
-    files_list_excel.clear()
-    files_list_excel.extend(os.listdir(os.path.join(settings.MEDIA_ROOT2, 'uploaded_files2')))
+    files_list_python = os.listdir(os.path.join(settings.MEDIA_ROOT, 'uploaded_files'))
+    files_list_excel = os.listdir(os.path.join(settings.MEDIA_ROOT2, 'uploaded_files2'))
+    files_list_result = os.listdir(os.path.join(settings.MEDIA_ROOT3, 'uploaded_files3'))
 
     return render(request, 'upload_file.html',
-    {'files_list_python': files_list_python, 'files_list_excel': files_list_excel})
+                  {'files_list_python': files_list_python, 'files_list_excel': files_list_excel, 'files_list_result': files_list_result})
 
 
 
+def index(request):
+    print("1")
+    if request.method == 'POST':
+        plugin_file = request.FILES['plugin_file']
+        with open(os.path.join('macros/plugins', plugin_file.name), 'wb+') as destination:
+            destination.write(plugin_file.read())
+        print('2')
+        inParameter = 'macros/user1/input'
+        outParameter = 'macros/user1/output'
 
+        if plugin_file.name.endswith(".py"):
+            plugin_name = plugin_file.name[:-3]
+        else:
+            plugin_name = plugin_file.name
+        print("3")
+        result = subprocess.run(['python3', 'macros/main.py', '-p', plugin_name, '-i', inParameter, '-o', outParameter],
+                                stdout=subprocess.PIPE)
 
+        print("4")
+        if result.returncode == 0:
+            return HttpResponse("Выполнено успешно")
+        else:
+            return HttpResponse("Не выполнено")
 
-
+    return render(request, 'index.html')
 
 

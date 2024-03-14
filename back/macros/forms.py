@@ -1,12 +1,28 @@
 from django import forms
-from .models import PythonScript, ExcelFile
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.models import User
 
-class PythonScriptForm(forms.ModelForm):
-    class Meta:
-        model = PythonScript
-        fields = ['file']
 
-class ExcelFileForm(forms.ModelForm):
+class RegisterUserForm(UserCreationForm):
+    username = forms.CharField(label='Логин', widget=forms.TextInput(attrs={'class': 'form-input'}))
+    password1 = forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class': 'form-input'}))
+    password2 = forms.CharField(label='Повтор пароля', widget=forms.PasswordInput(attrs={'class': 'form-input'}))
+
     class Meta:
-        model = ExcelFile
-        fields = ['file']
+        model = User
+        fields = ('username',  'password1', 'password2')
+
+
+class LoginUserForm(AuthenticationForm):
+    username = forms.CharField(label='Логин', widget=forms.TextInput(attrs={'class': 'form-input'}))
+    password = forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class': 'form-input'}))
+
+
+
+
+
+
+
+
+
+
